@@ -135,7 +135,7 @@ locals {
 # un Internet Gateway
 module "vpc_module" {
   #source                    = "git::https://github.com/BanCoppelUnity/Unity-VPC-module.git?ref=v1.0.0-rc.1"
-  source                    = "../Unity-VPC-module"
+  source                    = "git::https://github.com/carl0s05/vpc-module-test.git?ref=main"
   vpc_cidr_block            = var.vpc.cidr_block
   internet_gateway_creation = length(local.public_subnets) > 0
   partial_name              = var.vpc.name
@@ -146,7 +146,7 @@ module "vpc_module" {
 # Crea una serie de subnets especificadas en 'var.subnets' utilizando el módulo 'Unity-SubNet-module'
 module "subnet_module" {
   #source                   = "git::https://github.com/BanCoppelUnity/Unity-SubNet-module.git?ref=v1.0.0-rc.1"
-  source = "../Unity-SubNet-module"
+  source = "git::https://github.com/carl0s05/subnet-module-test.git?ref=main"
   for_each                 = var.subnets
   vpc_id                   = module.vpc_module.vpc_id
   subnet_cidr_block        = each.value.cidr_block
@@ -162,7 +162,7 @@ module "subnet_module" {
 # asociadas, ya que si hay reglas que dependen de grupos de seguridad dentro de la VPC es necesario su previa creación.
 module "security_groups_module" {
   #source   = "git::https://github.com/BanCoppelUnity/Unity-SecurityGroups-module.git?ref=v1.0.0-rc.1"
-  source = "../Unity-SecurityGroups-module"
+  source = "git::https://github.com/carl0s05/sg-module-test.git?ref=main"
   for_each = var.security_groups
   vpc_id   = module.vpc_module.vpc_id
   security_group_config = {
