@@ -28,7 +28,7 @@ pipeline {
 
         stage('plan') {
             steps {
-                sh 'terraform plan --var-file=dev-vars.tfvars -var "profile=test" -out=dev.plan
+                sh 'terraform plan --var-file=dev-vars.tfvars -var "profile=dev" -out=dev.plan
             }
         }
 
