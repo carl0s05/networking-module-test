@@ -2,12 +2,7 @@ pipeline {
     agent any
 
     stages {
-        stage('destroy') {
-            steps {
-                sh 'terraform destroy -auto-approve --var-file=dev-vars.tfvars'
-            }
-        }
-/*
+
         stage('init') {
             steps {
                 sh 'terraform init -migrate-state -force-copy'
@@ -38,10 +33,21 @@ pipeline {
             }
         }
 
+        stage('aprobacion') {
+                 steps {
+                    input('Confirmas realizar el despliegue?')
+                 }
+        }
 
         stage('apply') {
             steps {
-                sh 'terraform apply -auto-approve devplan'
+                sh 'terraform apply devplan'
+            }
+        }
+/*
+        stage('destroy') {
+            steps {
+                sh 'terraform destroy -auto-approve --var-file=dev-vars.tfvars'
             }
         }
 */
