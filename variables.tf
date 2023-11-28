@@ -1,7 +1,7 @@
-variable "profile" {
+/*variable "profile" {
   description = "Nombre de perfil para el despliegue de la infraestructura"
   type        = string
-}
+}*/
 
 variable "region" {
   description = "Región en la que se desplegarán los recursos AWS"

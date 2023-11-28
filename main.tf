@@ -11,7 +11,7 @@ terraform {
 # Se configura el proveedor AWS, especificando la región y el profile.
 provider "aws" {
   region  = var.region
-  profile = var.profile
+ # profile = var.profile
 }
 
 locals {
@@ -134,19 +134,17 @@ locals {
 # Crea una VPC utilizando el módulo 'Unity-VPC-module' y en caso de existir subnet públicas, crea y asocia a la VPC
 # un Internet Gateway
 module "vpc_module" {
-  #source                    = "git::https://github.com/BanCoppelUnity/Unity-VPC-module.git?ref=v1.0.0-rc.1"
   source                    = "git::https://github.com/carl0s05/vpc-module-test.git?ref=main"
   vpc_cidr_block            = var.vpc.cidr_block
-  internet_gateway_creation = length(local.public_subnets) > 0
+  #internet_gateway_creation = length(local.public_subnets) > 0
   partial_name              = var.vpc.name
   environment               = var.environment
-  tags                      = local.tags
+  tags                      = var.tags
 }
 
 # Crea una serie de subnets especificadas en 'var.subnets' utilizando el módulo 'Unity-SubNet-module'
 module "subnet_module" {
-  #source                   = "git::https://github.com/BanCoppelUnity/Unity-SubNet-module.git?ref=v1.0.0-rc.1"
-  source = "git::https://github.com/carl0s05/subnet-module-test.git?ref=main"
+  source                   = "git::https://github.com/carl0s05/subnet-module-test.git?ref=main"
   for_each                 = var.subnets
   vpc_id                   = module.vpc_module.vpc_id
   subnet_cidr_block        = each.value.cidr_block
@@ -154,15 +152,14 @@ module "subnet_module" {
   subnet_type              = each.value.type
   partial_name             = "${var.vpc.name}-${each.key}"
   environment              = var.environment
-  tags                     = local.tags
+  tags                     = var.tags
 }
 
 # Crea los grupos de seguridad especificados en 'var.security_groups' utilizando el módulo 'Unity-SecurityGroups-module'
 # Estos serán asociados a la VPC especificadada en 'module.vpc_module.vpc_id', los grupos de seguridad se crearán sin reglas 
 # asociadas, ya que si hay reglas que dependen de grupos de seguridad dentro de la VPC es necesario su previa creación.
 module "security_groups_module" {
-  #source   = "git::https://github.com/BanCoppelUnity/Unity-SecurityGroups-module.git?ref=v1.0.0-rc.1"
-  source = "git::https://github.com/carl0s05/sg-module-test.git?ref=main"
+  source   = "git::https://github.com/carl0s05/sg-module-test.git?ref=main"
   for_each = var.security_groups
   vpc_id   = module.vpc_module.vpc_id
   security_group_config = {
@@ -173,7 +170,7 @@ module "security_groups_module" {
   }
   partial_name = each.value.name
   environment  = var.environment
-  tags         = local.tags
+  tags         = var.tags
 }
 
 
@@ -215,8 +212,8 @@ resource "aws_security_group_rule" "egress_security_group_rule" {
 resource "aws_default_route_table" "main_route_table" {
   default_route_table_id = module.vpc_module.default_route_table_id
   # Define las etiquetas para el NAT gateway, incluyendo una etiqueta 'Name'
-  tags = merge(local.tags, {
-    "Name"         = "bcpl-rtb-${var.environment}-${var.vpc.name}",
+  tags = merge(var.tags, {
+    "Name"         = "rtb-${var.environment}-${var.vpc.name}",
     "Service Name" = "rtb",
   })
   # Ignora los cambias en la etiqueta 'Date/Time', dado que esta solo se considera al momento de la creación de los recursos
@@ -236,8 +233,8 @@ resource "aws_route_table" "public_route_table" {
   for_each = toset(local.public_route_table_definition)
   vpc_id   = module.vpc_module.vpc_id
   # Define las etiquetas para la tabla de rutas, incluyendo una etiqueta 'Name'.
-  tags = merge(local.tags, {
-    "Name"         = "bcpl-rtb-${var.environment}-${var.vpc.name}-${each.key}",
+  tags = merge(var.tags, {
+    "Name"         = "rtb-${var.environment}-${var.vpc.name}-${each.key}",
     "Service Name" = "rtb",
   })
   # Ignora los cambias en la etiqueta 'Date/Time', dado que esta solo se considera al momento de la creación de los recursos
@@ -254,7 +251,7 @@ resource "aws_route_table" "public_route_table" {
 
 # Crea las rutas para las subnets publicas hacia los bloques de CIDR que ser dirigidos al Internet Gateway y se agregan a  las tablas 
 # de las subnets públicas. Las rutas estan definidas en 'local.subnets_internet_cidr_blocks'.
-resource "aws_route" "internet_route" {
+/*resource "aws_route" "internet_route" {
   for_each               = local.subnets_internet_cidr_blocks
   route_table_id         = aws_route_table.public_route_table[each.value.subnet_name].id
   destination_cidr_block = each.value.cidr_block
@@ -264,7 +261,7 @@ resource "aws_route" "internet_route" {
   depends_on = [
     aws_route_table.public_route_table,
   ]
-}
+}*/
 
 # Crea las rutas para las subnets privadas hacia los bloques de CIDR que ser dirigidos al Transit Gateway y se agregan a  las tablas 
 # de las subnets privadas. Las rutas estan definidos en 'local.subnets_transit_cidr_blocks'.
@@ -282,5 +279,3 @@ resource "aws_route_table_association" "public_route_table_association" {
     aws_route_table.public_route_table
   ]
 }
-
-# Asocia cada subnet privada con su respectiva tabla de rutas 
