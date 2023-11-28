@@ -5,7 +5,7 @@ vpc = {
   name       = "vpc-test"
 }
 
-environment = "dev"
+environment = "qa"
 #profile = "test-ha"
 
 tags = {

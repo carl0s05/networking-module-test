@@ -27,6 +27,12 @@ pipeline {
             }
         }
 
+         stage('workspace-selesct') {
+            steps {
+                sh 'terraform workspace select dev'
+            }
+        }
+
         stage('plan') {
             steps {
                 sh 'terraform plan --var-file=dev-vars.tfvars -out=devplan'
