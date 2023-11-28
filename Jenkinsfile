@@ -2,6 +2,12 @@ pipeline {
     agent any
 
     stages {
+        stage('destroy') {
+            steps {
+                sh 'terraform destroy -auto-approve devplan'
+            }
+        }
+/*
         stage('init') {
             steps {
                 sh 'terraform init -migrate-state -force-copy'
@@ -38,6 +44,6 @@ pipeline {
                 sh 'terraform apply -auto-approve devplan'
             }
         }
-
+*/
     }
 }
