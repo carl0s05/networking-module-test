@@ -28,13 +28,13 @@ pipeline {
 
         stage('plan') {
             steps {
-                sh 'terraform plan --var-file=dev-vars.tfvars -out=devplan.json
+                sh 'terraform plan --var-file=dev-vars.tfvars -out=devplan'
             }
         }
 
         stage('apply') {
             steps {
-                sh 'terraform apply devplan.json'
+                sh 'terraform apply devplan'
             }
         }
 
