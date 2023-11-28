@@ -32,9 +32,10 @@ pipeline {
             }
         }
 
+
         stage('apply') {
             steps {
-                sh 'terraform apply devplan'
+                sh 'terraform apply -auto-approve devplan'
             }
         }
 
