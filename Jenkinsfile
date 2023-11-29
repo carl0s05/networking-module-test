@@ -25,13 +25,11 @@ pipeline {
             steps {
                 sh 'terraform workspace new dev'
             }
-        }
-
-         stage('workspace-select') {
             steps {
                 sh 'terraform workspace select dev'
             }
         }
+
 
         stage('plan') {
             steps {
